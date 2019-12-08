@@ -89,7 +89,7 @@ class LeapMotionListener(Leap.Listener):
         frame = controller.frame()
         interaction_box = frame.interaction_box
         hands = frame.hands
-        global cursor_right_X, cursor_right_Y, cursor_left_X, cursor_left_Y, right_hand_zoom, left_hand_zoom
+        global cursor_right_X, cursor_right_Y, cursor_left_X, cursor_left_Y, right_hand_zoom, left_hand_zoom, new_width, resizing
 
         if(len(frame.hands) == 0):
             cursor_right_X = 0
@@ -151,7 +151,7 @@ class LeapMotionListener(Leap.Listener):
             cursor_right_X = normalized_point_right.x * 1100
             cursor_right_Y = normalized_point_right.z * 1000
 
-            print str(cursor_right_X) + "           " + str(cursor_left_X)
+            #print str(cursor_right_X) + "           " + str(cursor_left_X)
 
             # Let's check if both hands have only the thumb and index extended
 
@@ -187,8 +187,12 @@ class LeapMotionListener(Leap.Listener):
                 #     print "SECOND" + str(angle1) + "     " + str(angle2)
 
                 if(angle1 > 60 and angle2 > 60):
-                    print "BOTH " + str(hands[0].stabilized_palm_position) + "   " + str(hands[1].stabilized_palm_position)
-                    print "Distance: " + str(hands[0].stabilized_palm_position.distance_to(hands[1].stabilized_palm_position))
+                    #print "BOTH " + str(hands[0].stabilized_palm_position) + "   " + str(hands[1].stabilized_palm_position)
+                    new_width = abs(cursor_right_X - cursor_left_X)
+                    #print "Distance: " + str(abs(cursor_right_X - cursor_left_X))
+                    resizing = True
+                else:
+                    resizing = False
 
 
 root = Tk()
@@ -198,6 +202,9 @@ loc = "1100x1000+" + x + '+' + y
 root.geometry(loc)
 
 photo = ImageTk.PhotoImage(Image.open("example.jpg"))
+res_photo = photo
+ori_width, ori_height = Image.open("example.jpg").size
+new_width, new_height = ori_width, ori_height
 label = Label(root, image=photo)
 label.place(x=0, y=0)
 
@@ -210,7 +217,7 @@ lab_right.place(x=0, y=0)
 photo3 = ImageTk.PhotoImage(Image.open("cursorL.png").resize((50,50)))
 photo3_zoom = ImageTk.PhotoImage(Image.open("cursorZL.png").resize((50,50)))
 lab_left = Label(root, image=photo3)
-lab_left.place(x=0, y=0)
+lab_left.place(x=400, y=400)
 
 
 cursor_right_X = 0
@@ -225,10 +232,11 @@ right_hand_zoom = False
 image_X = 400
 image_Y = 400
 
-def move_me():
-    global cursor_right_X, cursor_right_Y,cursor_left_X, cursor_left_Y, image_X, image_Y, label,e
+resizing = True
 
-    label.place(x=image_X, y=image_Y)
+def move_me():
+    global cursor_right_X, cursor_right_Y,cursor_left_X, cursor_left_Y, image_X, image_Y, label, resizing, new_width, new_height, res_photo
+
     if cursor_right_X == 0 and cursor_right_Y == 0:
         cursor_right_X = -100
         cursor_right_Y = -100
@@ -258,6 +266,12 @@ def move_me():
         lab_right.image = photo2
         move_me.loaded_right_zoom = False
 
+    if resizing:
+        new_height = ori_height * (new_width/ori_width)
+        res_photo = ImageTk.PhotoImage(Image.open("example.jpg").resize((int(new_width), int(new_height))))
+        label.place(x=550-(new_width/2), y=500-(new_height/2))
+        label.configure(image=res_photo)
+        label.image = res_photo
 
     root.after(50, move_me)
     root["bg"] = "yellow"
