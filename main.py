@@ -84,13 +84,21 @@ class LeapMotionListener(Leap.Listener):
     #         #if(abs(hand.fingers[0].direction[0]- hand.fingers[1].direction[0]) > 0.8):
     #         # if(angle* Leap.RAD_TO_DEG > 72):
     #         #     print "SIGN " + str(handType)
+
     # # Main method
+    # I decided to not create auxiliary functions to speed up the process.
+    # Usually it wouldn't be a problem but this particular function is called constantly and we are trying
+    # to give the user a real-time experience.
+
     def on_frame(selfself, controller):
-        frame = controller.frame()
-        interaction_box = frame.interaction_box
-        hands = frame.hands
+        frame = controller.frame()      #Actual frame
+        interaction_box = frame.interaction_box         # Interaction box in top of the device
+        hands = frame.hands                             # Vector with the hands present in the frame
+
+        # Global variables that we are using
         global cursor_right_X, cursor_right_Y, cursor_left_X, cursor_left_Y, right_hand_zoom, left_hand_zoom, new_width, resizing
 
+        # If there is no hands in the frame, we can reset the variables
         if(len(frame.hands) == 0):
             cursor_right_X = 0
             cursor_right_Y = 0
@@ -99,34 +107,41 @@ class LeapMotionListener(Leap.Listener):
             right_hand_zoom = False
             left_hand_zoom = False
 
+        # If there is one hand in the frame
         if(len(frame.hands) == 1):
-            vec1 = hands[0].fingers[0].direction  # Thumb
-            vec2 = hands[0].fingers[1].direction  # Index
-            angle1 = acos(max(-1.0, min(1.0, vec1.dot(vec2))))
-            leap_position = hands[0].palm_position
+            leap_position = hands[0].palm_position          # We get the position of the palm
+
+            # Since the interaction box could be quite small, a solution proposed by the developers is to
+            # reduce the position of the hands to decrease sensibility. Doing this, we will increase
+            # the range that we can normalize.
             leap_position.x *= .5
             leap_position.z *= 0.5
 
+            # We cannot zoom with one hand, so in case that we were zooming before, we reset the variables
             right_hand_zoom = False
             left_hand_zoom = False
 
+            # We get the normalized position of the hand
             normalized_point = interaction_box.normalize_point(leap_position, True)
 
             if(hands[0].is_right):
-                cursor_right_X = normalized_point.x * 1100
+                cursor_right_X = normalized_point.x * 1150 - 50
                 cursor_right_Y = normalized_point.z * 1000
+                cursor_left_X = 0
+                cursor_left_Y = 0
             else:
-                cursor_left_X = normalized_point.x * 1100
+                cursor_left_X = normalized_point.x * 1150 - 50
                 cursor_left_Y = normalized_point.z * 1000
-            #print "POS " + str(cursor_right_X) + "   " + str(cursor_right_Y)
+                cursor_right_X = 0
+                cursor_right_Y = 0
 
-
-
-
+        # If there are two or more hands in the frame
+        # We decided two or more in case that the device detects a
+        # sudden movement from someone else. We can assume that the
+        # two hands that it's going to detect first are the owner's
         if(len(frame.hands) >= 2):
 
-
-            #Move the cursors
+            # We detect the left and right hands
             if(hands[0].is_left):
                 left_hand = hands[0]
                 right_hand = hands[1]
@@ -134,6 +149,7 @@ class LeapMotionListener(Leap.Listener):
                 left_hand = hands[1]
                 right_hand = hands[0]
 
+            # Calculate the positions
             leap_position_left = left_hand.palm_position
             leap_position_left.x *= .5
             leap_position_left.z *= 0.5
@@ -142,19 +158,19 @@ class LeapMotionListener(Leap.Listener):
             leap_position_right.x *= .5
             leap_position_right.z *= 0.5
 
+            # Normalize the points
             normalized_point_right = interaction_box.normalize_point(leap_position_right, True)
             normalized_point_left = interaction_box.normalize_point(leap_position_left, True)
 
-            cursor_left_X = normalized_point_left.x * 1100
+            # Move the cursors to their new positions
+            cursor_left_X = normalized_point_left.x * 1150 - 50
             cursor_left_Y = normalized_point_left.z * 1000
 
-            cursor_right_X = normalized_point_right.x * 1100
+            cursor_right_X = normalized_point_right.x * 1150 - 50
             cursor_right_Y = normalized_point_right.z * 1000
 
-            #print str(cursor_right_X) + "           " + str(cursor_left_X)
-
+            ################################################################################################
             # Let's check if both hands have only the thumb and index extended
-
             two_up_left = True
             two_up_right = True
             for i in range(0, 1):
@@ -165,117 +181,147 @@ class LeapMotionListener(Leap.Listener):
                 two_up_left = two_up_left and not left_hand.fingers[i].is_extended
                 two_up_right = two_up_right and not right_hand.fingers[i].is_extended
 
-            left_hand_zoom = two_up_left
-            right_hand_zoom = two_up_right
-
-            if two_up_left and two_up_right:
+            if two_up_left:
+                # We calculate the angle between the two fingers in the two hands
                 vec1 = left_hand.fingers[0].direction    # Thumb
                 vec2 = left_hand.fingers[1].direction    # Index
-                #angle1 = vec1.angle_to(vec2) * Leap.RAD_TO_DEG             # Angle
                 angle1 = acos(max(-1.0, min(1.0, vec1.dot(vec2))))* Leap.RAD_TO_DEG
 
+                # Check if the angle is open enough
+                if (angle1 > 60):
+                    left_hand_zoom = True
+                else:
+                    left_hand_zoom = False
+            else:
+                left_hand_zoom = False
+
+            if two_up_right:
+                # We calculate the angle between the two fingers in the two hands
                 vec1 = right_hand.fingers[0].direction    # Thumb
                 vec2 = right_hand.fingers[1].direction    # Index
-                #angle2 = vec1.angle_to(vec2) * Leap.RAD_TO_DEG          # Angle
                 angle2 = acos(max(-1.0, min(1.0, vec1.dot(vec2))))* Leap.RAD_TO_DEG
 
+                # Check if the angle is open enough
+                if (angle2 > 60):
+                    right_hand_zoom = True
+                else:
+                    right_hand_zoom = False
+            else:
+                right_hand_zoom = False
 
-                #print angle1 * Leap.RAD_TO_DEG
-                # if(angle1 > 0.75):
-                #     print "FIRST  " + str(angle1) + "     " + str(angle2)
-                # if(angle2 > 0.75):
-                #     print "SECOND" + str(angle1) + "     " + str(angle2)
-
+            # If both hands have only those fingers up we can proceed
+            if two_up_left and two_up_right:
+                # If the angle of the hands is over the limit we start to resize
                 if(angle1 > 60 and angle2 > 60):
-                    #print "BOTH " + str(hands[0].stabilized_palm_position) + "   " + str(hands[1].stabilized_palm_position)
+                    # The new width of the image will be the distance between the two hands in the X axis
                     new_width = abs(cursor_right_X - cursor_left_X)
-                    #print "Distance: " + str(abs(cursor_right_X - cursor_left_X))
+                    # print "Distance: " + str(abs(cursor_right_X - cursor_left_X))
                     resizing = True
                 else:
                     resizing = False
 
 
+# We create a window where we will be showing the process
 root = Tk()
-root.title("lol")
-x, y = str(400), str(0)
-loc = "1100x1000+" + x + '+' + y
-root.geometry(loc)
+root.title("Leap Motion")
+x, y = str(400), str(0)                 # Location on the screen
+loc = "1100x1000+" + x + '+' + y        # Size (+ location)
+root.geometry(loc)                      # Set the values
 
+# We start with the initial picture and make a copy that we will resize
 photo = ImageTk.PhotoImage(Image.open("example.jpg"))
 res_photo = photo
-ori_width, ori_height = Image.open("example.jpg").size
-new_width, new_height = ori_width, ori_height
-label = Label(root, image=photo)
-label.place(x=0, y=0)
+ori_width, ori_height = Image.open("example.jpg").size      # Original sizes
+new_width, new_height = ori_width, ori_height               # New sizes
+label = Label(root, image=photo)                            # We create a label with the picture and assign it
+label.place(x=550 - (new_width / 2), y=500 - (new_height / 2))  # Place it in the middle of the window
 
-
+# We create the label that will hold the right cursor (normal and zoom)
 photo2 = ImageTk.PhotoImage(Image.open("cursorR.png").resize((50,50)))
 photo2_zoom = ImageTk.PhotoImage(Image.open("cursorZR.png").resize((50,50)))
 lab_right = Label(root, image=photo2)
-lab_right.place(x=0, y=0)
+lab_right.place(x=-100, y=-100)
 
+# We create the label that will hold the left cursor (normal and zoom)
 photo3 = ImageTk.PhotoImage(Image.open("cursorL.png").resize((50,50)))
 photo3_zoom = ImageTk.PhotoImage(Image.open("cursorZL.png").resize((50,50)))
 lab_left = Label(root, image=photo3)
-lab_left.place(x=400, y=400)
+lab_left.place(x=-100, y=-100)
 
+# These variables will keep the 2D coordinates of the right hand
+cursor_right_X = -100
+cursor_right_Y = -100
 
-cursor_right_X = 0
-cursor_right_Y = 0
+# These variables will keep the 2D coordinates of the left hand
+cursor_left_X = -100
+cursor_left_Y = -100
 
-cursor_left_X = 0
-cursor_left_Y = 0
-
+# These variables will keep if we are zooming with either hand
 left_hand_zoom = False
 right_hand_zoom = False
 
-image_X = 400
-image_Y = 400
+# This variable keeps track if we are resizing at the moment
+resizing = False
 
-resizing = True
+
+image_pos_X = 400
+image_pos_Y = 400
+
 
 def move_me():
-    global cursor_right_X, cursor_right_Y,cursor_left_X, cursor_left_Y, image_X, image_Y, label, resizing, new_width, new_height, res_photo
+    global cursor_right_X, cursor_right_Y,cursor_left_X, cursor_left_Y, image_pos_X, image_pos_Y, label, resizing, new_width, new_height, res_photo
 
+    # Set the position of the right cursor out of the screen if it is not necessary
     if cursor_right_X == 0 and cursor_right_Y == 0:
         cursor_right_X = -100
         cursor_right_Y = -100
+
+    # Set the position of the left cursor out of the screen if it is not necessary
     if cursor_left_X == 0 and cursor_left_Y == 0:
         cursor_left_X = -100
         cursor_left_Y = -100
+
+    # Set the cursors to their new position
     lab_right.place(x=cursor_right_X, y=cursor_right_Y)
     lab_left.place(x=cursor_left_X, y=cursor_left_Y)
 
+    # Change the left cursor to the leftZoom cursor if it is not loaded
     if not move_me.loaded_left_zoom and left_hand_zoom:
         lab_left.configure(image=photo3_zoom)
         lab_left.image=photo3_zoom
         move_me.loaded_left_zoom = True
 
+    # Change the right cursor to the rightZoom cursor if it is not loaded
     if not move_me.loaded_right_zoom and right_hand_zoom:
         lab_right.configure(image=photo2_zoom)
         lab_right.image = photo2_zoom
         move_me.loaded_right_zoom = True
 
+    # Change the left cursor back to the original if we are not zooming
     if move_me.loaded_left_zoom and not left_hand_zoom:
         lab_left.configure(image=photo3)
         lab_left.image=photo3
         move_me.loaded_left_zoom = False
 
+    # Change the right cursor back to the original if we are not zooming
     if move_me.loaded_right_zoom and not right_hand_zoom:
         lab_right.configure(image=photo2)
         lab_right.image = photo2
         move_me.loaded_right_zoom = False
 
+    # Check if we need to resize the image
     if resizing:
-        new_height = ori_height * (new_width/ori_width)
-        res_photo = ImageTk.PhotoImage(Image.open("example.jpg").resize((int(new_width), int(new_height))))
-        label.place(x=550-(new_width/2), y=500-(new_height/2))
-        label.configure(image=res_photo)
+        new_height = ori_height * (new_width/ori_width)             # Calculate the new height keeping the ratio
+        res_photo = ImageTk.PhotoImage(Image.open("example.jpg").resize((int(new_width), int(new_height))))     # Load the new resized photo
+        label.place(x=550-(new_width/2), y=500-(new_height/2))                                                  # Place it on the center
+        label.configure(image=res_photo)                                                                        # Load the new photo
         label.image = res_photo
 
-    root.after(50, move_me)
+    root.after(50, move_me)     # Set the next time that this function is going to be called (in ms)
     root["bg"] = "yellow"
 
+
+# In these variables we will keep if the cursor loaded at the moment is the original or the zoom one
 move_me.loaded_left_zoom = False
 move_me.loaded_right_zoom = False
 
@@ -284,8 +330,6 @@ def main():
     controller = Leap.Controller()
 
     controller.add_listener(listener)
-
-
 
     move_me()
     root.mainloop()
