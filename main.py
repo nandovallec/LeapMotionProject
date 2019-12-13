@@ -91,12 +91,15 @@ class LeapMotionListener(Leap.Listener):
     # to give the user a real-time experience.
 
     def on_frame(selfself, controller):
-        frame = controller.frame()      #Actual frame
+        frame = controller.frame()      # Actual frame
         interaction_box = frame.interaction_box         # Interaction box in top of the device
         hands = frame.hands                             # Vector with the hands present in the frame
 
         # Global variables that we are using
-        global cursor_right_X, cursor_right_Y, cursor_left_X, cursor_left_Y, right_hand_zoom, left_hand_zoom, new_width, resizing
+        global cursor_right_X, cursor_right_Y, cursor_left_X, cursor_left_Y,\
+            right_hand_zoom, left_hand_zoom, new_width, resizing, positioning, \
+            image_pos_X, image_pos_Y, hand_origin_X, hand_origin_Y, image_new_X, \
+            image_new_Y, tapping, swiping
 
         # If there is no hands in the frame, we can reset the variables
         if(len(frame.hands) == 0):
@@ -106,11 +109,12 @@ class LeapMotionListener(Leap.Listener):
             cursor_left_Y = 0
             right_hand_zoom = False
             left_hand_zoom = False
+            resizing = False
 
         # If there is one hand in the frame
         if(len(frame.hands) == 1):
             leap_position = hands[0].palm_position          # We get the position of the palm
-
+            resizing = False
             # Since the interaction box could be quite small, a solution proposed by the developers is to
             # reduce the position of the hands to decrease sensibility. Doing this, we will increase
             # the range that we can normalize.
@@ -135,6 +139,60 @@ class LeapMotionListener(Leap.Listener):
                 cursor_right_X = 0
                 cursor_right_Y = 0
 
+            cursor_x = cursor_right_X if cursor_left_X == 0 else cursor_left_X
+            cursor_y = cursor_right_Y if cursor_left_Y == 0 else cursor_left_Y
+
+            closed_hand = True
+            pointing = True
+            open_hand = True
+            for finger in hands[0].fingers:
+                closed_hand = closed_hand and not finger.is_extended
+                open_hand = open_hand and finger.is_extended
+                if(finger.type == Leap.Finger.TYPE_THUMB):
+                    pass
+                elif(finger.type == Leap.Finger.TYPE_INDEX):
+                    pointing = pointing and finger.is_extended
+                else:
+                    pointing = pointing and not finger.is_extended
+            if closed_hand and hands[0].grab_strength == 1.0:
+
+                print "Posicion Imagen  "+str(image_pos_X)+"     "+ str(image_pos_Y) +"                 Cursor Anterior " + str(hand_origin_X) + "    " + str(hand_origin_Y) + "                  Cursor Actual " + str(cursor_x) + "    " + str(cursor_y)
+                if(not positioning):
+                    inside_range_x = image_pos_X - new_width/2 +25 <= cursor_x <= image_pos_X + new_width/2 -25
+                    inside_range_y = image_pos_Y - new_height/2 +25 <= cursor_y <= image_pos_Y + new_height/2 -25
+                if(cursor_x != -100 and cursor_y != -100 ):
+                    if(positioning or (inside_range_x and inside_range_y)):
+                        if hand_origin_X == -100 and hand_origin_Y == -100:
+                            hand_origin_X = cursor_x
+                            hand_origin_Y = cursor_y
+                            positioning = True
+                        else:
+                            image_pos_X = image_pos_X + ((cursor_x - hand_origin_X) if cursor_x - hand_origin_X < 15 else 15)
+                            image_pos_Y = image_pos_Y + ((cursor_y - hand_origin_Y) if cursor_y - hand_origin_Y < 15 else 15)
+                            hand_origin_X = cursor_x
+                            hand_origin_Y = cursor_y
+
+            else:
+                # image_pos_X = image_new_X
+                # image_pos_Y = image_new_Y
+                positioning = False
+                hand_origin_X = -100
+                hand_origin_Y = -100
+
+            if (len(frame.gestures()) != 0):
+                print str([frame.gestures()[0].type]) + "      Long  " + str (len(frame.gestures()))
+                print "Gesture  " + ("pointing" if pointing else "not pointing")
+                if pointing and (cursor_x >= 1100.0 * .6) and (cursor_y <= 1000.0 * .6):
+                    print "FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"
+                    if(frame.gestures()[0].type == Leap.Gesture.TYPE_SCREEN_TAP):
+                        tapping = True
+                if open_hand and (frame.gestures()[0].type == Leap.Gesture.TYPE_SWIPE):
+                    swipe = SwipeGesture(frame.gestures()[0])
+                    print str(swipe.direction)
+                    if(abs (swipe.direction[0]) > 0.7):
+                        swiping = True
+
+
         # If there are two or more hands in the frame
         # We decided two or more in case that the device detects a
         # sudden movement from someone else. We can assume that the
@@ -148,6 +206,8 @@ class LeapMotionListener(Leap.Listener):
             else:
                 left_hand = hands[1]
                 right_hand = hands[0]
+
+            print("Left " + str(left_hand.grab_strength) + "     Right  " + str(right_hand.grab_strength))
 
             # Calculate the positions
             leap_position_left = left_hand.palm_position
@@ -185,7 +245,7 @@ class LeapMotionListener(Leap.Listener):
                 # We calculate the angle between the two fingers in the two hands
                 vec1 = left_hand.fingers[0].direction    # Thumb
                 vec2 = left_hand.fingers[1].direction    # Index
-                angle1 = acos(max(-1.0, min(1.0, vec1.dot(vec2))))* Leap.RAD_TO_DEG
+                angle1 = acos(max(-1.0, min(1.0, vec1.dot(vec2)))) * Leap.RAD_TO_DEG
 
                 # Check if the angle is open enough
                 if (angle1 > 60):
@@ -199,7 +259,7 @@ class LeapMotionListener(Leap.Listener):
                 # We calculate the angle between the two fingers in the two hands
                 vec1 = right_hand.fingers[0].direction    # Thumb
                 vec2 = right_hand.fingers[1].direction    # Index
-                angle2 = acos(max(-1.0, min(1.0, vec1.dot(vec2))))* Leap.RAD_TO_DEG
+                angle2 = acos(max(-1.0, min(1.0, vec1.dot(vec2)))) * Leap.RAD_TO_DEG
 
                 # Check if the angle is open enough
                 if (angle2 > 60):
@@ -260,16 +320,26 @@ cursor_left_Y = -100
 left_hand_zoom = False
 right_hand_zoom = False
 
-# This variable keeps track if we are resizing at the moment
+# This variable keeps track if we are resizing or repositioning at the moment
 resizing = False
+positioning = False
+tapping = False
+swiping = False
 
+# The actual position of the image (the center)
+image_pos_X = 550
+image_pos_Y = 500
 
-image_pos_X = 400
-image_pos_Y = 400
+image_new_X = image_pos_X
+image_new_Y = image_pos_Y
 
+hand_origin_X = -100
+hand_origin_Y = -100
 
 def move_me():
-    global cursor_right_X, cursor_right_Y,cursor_left_X, cursor_left_Y, image_pos_X, image_pos_Y, label, resizing, new_width, new_height, res_photo
+    global cursor_right_X, cursor_right_Y,cursor_left_X, cursor_left_Y, \
+        image_pos_X, image_pos_Y, label, resizing, new_width, new_height,\
+        res_photo, positioning, tapping, swiping
 
     # Set the position of the right cursor out of the screen if it is not necessary
     if cursor_right_X == 0 and cursor_right_Y == 0:
@@ -313,9 +383,31 @@ def move_me():
     if resizing:
         new_height = ori_height * (new_width/ori_width)             # Calculate the new height keeping the ratio
         res_photo = ImageTk.PhotoImage(Image.open("example.jpg").resize((int(new_width), int(new_height))))     # Load the new resized photo
-        label.place(x=550-(new_width/2), y=500-(new_height/2))                                                  # Place it on the center
+        label.place(x=image_pos_X-(new_width/2), y=image_pos_Y-(new_height/2))  # Keep the same center while resizing
         label.configure(image=res_photo)                                                                        # Load the new photo
         label.image = res_photo
+
+    if positioning:
+        label.place(x=image_pos_X-(new_width/2), y=image_pos_Y-(new_height/2))  # Change the position
+
+    if tapping:
+        new_width, new_height = ori_width, ori_height  # New sizes
+        image_pos_X = 550
+        image_pos_Y = 500
+
+        new_height = ori_height * (new_width / ori_width)  # Calculate the new height keeping the ratio
+        res_photo = ImageTk.PhotoImage(
+            Image.open("example.jpg").resize((int(new_width), int(new_height))))  # Load the new resized photo
+        label.place(x=image_pos_X - (new_width / 2),
+                    y=image_pos_Y - (new_height / 2))  # Keep the same center while resizing
+        label.configure(image=res_photo)  # Load the new photo
+        label.image = res_photo
+
+        tapping = False
+
+    if swiping:
+        label.place_forget()
+        swiping = False
 
     root.after(50, move_me)     # Set the next time that this function is going to be called (in ms)
     root["bg"] = "yellow"
