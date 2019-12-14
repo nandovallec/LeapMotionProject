@@ -98,8 +98,8 @@ class LeapMotionListener(Leap.Listener):
         # Global variables that we are using
         global cursor_right_X, cursor_right_Y, cursor_left_X, cursor_left_Y,\
             right_hand_zoom, left_hand_zoom, new_width, resizing, positioning, \
-            image_pos_X, image_pos_Y, hand_origin_X, hand_origin_Y, image_new_X, \
-            image_new_Y, tapping, swiping
+            image_pos_X, image_pos_Y, hand_origin_X, hand_origin_Y, \
+            tapping, swiping
 
         # If there is no hands in the frame, we can reset the variables
         if(len(frame.hands) == 0):
@@ -128,6 +128,7 @@ class LeapMotionListener(Leap.Listener):
             # We get the normalized position of the hand
             normalized_point = interaction_box.normalize_point(leap_position, True)
 
+            # Update the position of the cursor
             if(hands[0].is_right):
                 cursor_right_X = normalized_point.x * 1150 - 50
                 cursor_right_Y = normalized_point.z * 1000
@@ -142,8 +143,9 @@ class LeapMotionListener(Leap.Listener):
             cursor_x = cursor_right_X if cursor_left_X == 0 else cursor_left_X
             cursor_y = cursor_right_Y if cursor_left_Y == 0 else cursor_left_Y
 
+            # We create variable to control the state of the hand and set them appropriately
             closed_hand = True
-            pointing = True
+            pointing = True     # We allow the user to have the thumb extended or not
             open_hand = True
             for finger in hands[0].fingers:
                 closed_hand = closed_hand and not finger.is_extended
@@ -154,41 +156,47 @@ class LeapMotionListener(Leap.Listener):
                     pointing = pointing and finger.is_extended
                 else:
                     pointing = pointing and not finger.is_extended
-            if closed_hand and hands[0].grab_strength == 1.0:
 
-                print "Posicion Imagen  "+str(image_pos_X)+"     "+ str(image_pos_Y) +"                 Cursor Anterior " + str(hand_origin_X) + "    " + str(hand_origin_Y) + "                  Cursor Actual " + str(cursor_x) + "    " + str(cursor_y)
+            # If the hand is close
+            if (closed_hand and hands[0].grab_strength == 1.0):
+                # Check if we were positioning already or we are starting
                 if(not positioning):
+                    # Check if the cursor is positioned over the photo
                     inside_range_x = image_pos_X - new_width/2 +25 <= cursor_x <= image_pos_X + new_width/2 -25
                     inside_range_y = image_pos_Y - new_height/2 +25 <= cursor_y <= image_pos_Y + new_height/2 -25
-                if(cursor_x != -100 and cursor_y != -100 ):
-                    if(positioning or (inside_range_x and inside_range_y)):
-                        if hand_origin_X == -100 and hand_origin_Y == -100:
+
+                if(cursor_x != -100 and cursor_y != -100 ):     # Check is not an abnormal case
+
+                    if(positioning or (inside_range_x and inside_range_y)):     # Check if we can position or were already
+
+                        if hand_origin_X == -100 and hand_origin_Y == -100:     # If we are starting to position
                             hand_origin_X = cursor_x
                             hand_origin_Y = cursor_y
                             positioning = True
-                        else:
+                        else:                                                   # If we were positioning already
                             image_pos_X = image_pos_X + ((cursor_x - hand_origin_X) if cursor_x - hand_origin_X < 15 else 15)
                             image_pos_Y = image_pos_Y + ((cursor_y - hand_origin_Y) if cursor_y - hand_origin_Y < 15 else 15)
                             hand_origin_X = cursor_x
                             hand_origin_Y = cursor_y
 
+            # If the hand is not closed we reset the positioning variables
             else:
-                # image_pos_X = image_new_X
-                # image_pos_Y = image_new_Y
                 positioning = False
                 hand_origin_X = -100
                 hand_origin_Y = -100
 
+            # If the user is doing some gesture
             if (len(frame.gestures()) != 0):
-                print str([frame.gestures()[0].type]) + "      Long  " + str (len(frame.gestures()))
-                print "Gesture  " + ("pointing" if pointing else "not pointing")
+                # Check if the hand is pointing and is in the required zone of the window
                 if pointing and (cursor_x >= 1100.0 * .6) and (cursor_y <= 1000.0 * .6):
-                    print "FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"
+                    # If the gesture is tapping we set the variables
                     if(frame.gestures()[0].type == Leap.Gesture.TYPE_SCREEN_TAP):
                         tapping = True
+
+                # Check if the hand is completely open and the gesture is swiping
                 if open_hand and (frame.gestures()[0].type == Leap.Gesture.TYPE_SWIPE):
                     swipe = SwipeGesture(frame.gestures()[0])
-                    print str(swipe.direction)
+                    # Check that the main direction of the swipe is the x-axis
                     if(abs (swipe.direction[0]) > 0.7):
                         swiping = True
 
@@ -206,8 +214,6 @@ class LeapMotionListener(Leap.Listener):
             else:
                 left_hand = hands[1]
                 right_hand = hands[0]
-
-            print("Left " + str(left_hand.grab_strength) + "     Right  " + str(right_hand.grab_strength))
 
             # Calculate the positions
             leap_position_left = left_hand.palm_position
@@ -289,12 +295,13 @@ loc = "1100x1000+" + x + '+' + y        # Size (+ location)
 root.geometry(loc)                      # Set the values
 
 # We start with the initial picture and make a copy that we will resize
-photo = ImageTk.PhotoImage(Image.open("example.jpg"))
+photo = ImageTk.PhotoImage(Image.open("MainPic.jpg"))
 res_photo = photo
-ori_width, ori_height = Image.open("example.jpg").size      # Original sizes
+ori_width, ori_height = Image.open("MainPic.jpg").size      # Original sizes
 new_width, new_height = ori_width, ori_height               # New sizes
 label = Label(root, image=photo)                            # We create a label with the picture and assign it
 label.place(x=550 - (new_width / 2), y=500 - (new_height / 2))  # Place it in the middle of the window
+
 
 # We create the label that will hold the right cursor (normal and zoom)
 photo2 = ImageTk.PhotoImage(Image.open("cursorR.png").resize((50,50)))
@@ -330,9 +337,7 @@ swiping = False
 image_pos_X = 550
 image_pos_Y = 500
 
-image_new_X = image_pos_X
-image_new_Y = image_pos_Y
-
+# Variables to control the movement while grabbing the photo
 hand_origin_X = -100
 hand_origin_Y = -100
 
@@ -382,29 +387,36 @@ def move_me():
     # Check if we need to resize the image
     if resizing:
         new_height = ori_height * (new_width/ori_width)             # Calculate the new height keeping the ratio
-        res_photo = ImageTk.PhotoImage(Image.open("example.jpg").resize((int(new_width), int(new_height))))     # Load the new resized photo
+
+        if(new_width > 2*ori_width):    # If the zoom is over two times the original size, we load the detailed photo
+            res_photo = ImageTk.PhotoImage( Image.open("detailedMainPic.jpg").resize((int(new_width), int(new_height))))  # Load the new resized photo
+        else:
+            res_photo = ImageTk.PhotoImage(Image.open("MainPic.jpg").resize((int(new_width), int(new_height))))     # Load the new resized photo
+
         label.place(x=image_pos_X-(new_width/2), y=image_pos_Y-(new_height/2))  # Keep the same center while resizing
-        label.configure(image=res_photo)                                                                        # Load the new photo
+        label.configure(image=res_photo)    # Load the new photo
         label.image = res_photo
 
+    # Check if the photo need a change in position
     if positioning:
         label.place(x=image_pos_X-(new_width/2), y=image_pos_Y-(new_height/2))  # Change the position
 
+    # If the user tapped, reset the photo to original settings or load it if it was not there
     if tapping:
-        new_width, new_height = ori_width, ori_height  # New sizes
+        new_width, new_height = ori_width, ori_height  # Reset the sizes and position
         image_pos_X = 550
         image_pos_Y = 500
 
-        new_height = ori_height * (new_width / ori_width)  # Calculate the new height keeping the ratio
         res_photo = ImageTk.PhotoImage(
-            Image.open("example.jpg").resize((int(new_width), int(new_height))))  # Load the new resized photo
+            Image.open("MainPic.jpg").resize((int(new_width), int(new_height))))  # Load the original photo
         label.place(x=image_pos_X - (new_width / 2),
-                    y=image_pos_Y - (new_height / 2))  # Keep the same center while resizing
+                    y=image_pos_Y - (new_height / 2))  # Position it in the center
         label.configure(image=res_photo)  # Load the new photo
         label.image = res_photo
 
         tapping = False
 
+    # Check for swiping and deletes the photo
     if swiping:
         label.place_forget()
         swiping = False
