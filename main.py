@@ -294,6 +294,11 @@ x, y = str(400), str(0)                 # Location on the screen
 loc = "1100x1000+" + x + '+' + y        # Size (+ location)
 root.geometry(loc)                      # Set the values
 
+# Set the background image
+background_photo = ImageTk.PhotoImage(Image.open("background.jpg"))
+background_label = Label(root, image=background_photo)
+background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
 # We start with the initial picture and make a copy that we will resize
 photo = ImageTk.PhotoImage(Image.open("MainPic.jpg"))
 res_photo = photo
@@ -422,7 +427,6 @@ def move_me():
         swiping = False
 
     root.after(50, move_me)     # Set the next time that this function is going to be called (in ms)
-    root["bg"] = "yellow"
 
 
 # In these variables we will keep if the cursor loaded at the moment is the original or the zoom one
