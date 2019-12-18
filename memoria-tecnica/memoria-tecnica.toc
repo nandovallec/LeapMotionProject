@@ -1,0 +1,8 @@
+\babel@toc {spanish}{}
+\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{2}{section.1}% 
+\contentsline {section}{\numberline {2}Interfaz por gestos}{2}{section.2}% 
+\contentsline {subsection}{\numberline {2.1}Descripci\IeC {\'o}n del \textit {click}}{2}{subsection.2.1}% 
+\contentsline {subsection}{\numberline {2.2}Descripci\IeC {\'o}n del \textit {swipe}}{2}{subsection.2.2}% 
+\contentsline {subsection}{\numberline {2.3}Descripci\IeC {\'o}n del zoom}{3}{subsection.2.3}% 
+\contentsline {subsection}{\numberline {2.4}Descripci\IeC {\'o}n del agarre y movimiento}{3}{subsection.2.4}% 
+\contentsline {section}{Referencias}{5}{section*.2}% 
