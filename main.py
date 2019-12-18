@@ -186,11 +186,11 @@ class LeapMotionListener(Leap.Listener):
             # Let's check if both hands have only the thumb and index extended
             two_up_left = True
             two_up_right = True
-            for i in range(0, 1):
+            for i in range(0, 2):
                 two_up_left = two_up_left and left_hand.fingers[i].is_extended
                 two_up_right = two_up_right and right_hand.fingers[i].is_extended
 
-            for i in range(2, 4):
+            for i in range(2, 5):
                 two_up_left = two_up_left and not left_hand.fingers[i].is_extended
                 two_up_right = two_up_right and not right_hand.fingers[i].is_extended
 
@@ -362,7 +362,7 @@ def move_me():
     if positioning and label.place_info() != {}:
         label.place(x=image_pos_X-(new_width/2), y=image_pos_Y-(new_height/2))  # Change the position
 
-    # If the user tapped, reset the photo to original settings or load it if it was not there
+    # If the user clicked, reset the photo to original settings or load it if it was not there
     if resetting:
         new_width, new_height = ori_width, ori_height  # Reset the sizes and position
         image_pos_X = 550
@@ -397,18 +397,14 @@ def main():
 
     controller.add_listener(listener)
 
+    controller.config.set("Gesture.Swipe.MinVelocity", 1000000)
+
     # We create the window and start the looping method
     move_me()
     root.mainloop()
 
     # Exit method
-    print "Enter to finish"
-    try:
-        sys.stdin.readline()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        controller.remove_listener(listener)
+    controller.remove_listener(listener)
 
 if __name__ == "__main__":
     main()
