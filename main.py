@@ -197,7 +197,7 @@ class LeapMotionListener(Leap.Listener):
             # Set the minimum angle between thumb and index to be considered zooming
             threshold_angle = 40
 
-            # If they have the left and thumb extended, we calculate the angle
+            # If they have the left index and thumb extended, we calculate the angle
             if two_up_left:
                 vec1 = left_hand.fingers[0].direction    # Thumb
                 vec2 = left_hand.fingers[1].direction    # Index
@@ -211,7 +211,7 @@ class LeapMotionListener(Leap.Listener):
             else:
                 left_hand_zoom = False
 
-            # If they have the right and thumb extended, we calculate the angle
+            # If they have the right index and thumb extended, we calculate the angle
             if two_up_right:
                 vec1 = right_hand.fingers[0].direction    # Thumb
                 vec2 = right_hand.fingers[1].direction    # Index

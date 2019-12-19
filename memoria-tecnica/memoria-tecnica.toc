@@ -1,8 +1,10 @@
 \babel@toc {spanish}{}
-\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{2}{section.1}% 
+\contentsline {section}{\numberline {1}Introducción}{2}{section.1}% 
 \contentsline {section}{\numberline {2}Interfaz por gestos}{2}{section.2}% 
-\contentsline {subsection}{\numberline {2.1}Descripci\IeC {\'o}n del \textit {click}}{2}{subsection.2.1}% 
-\contentsline {subsection}{\numberline {2.2}Descripci\IeC {\'o}n del \textit {swipe}}{2}{subsection.2.2}% 
-\contentsline {subsection}{\numberline {2.3}Descripci\IeC {\'o}n del zoom}{3}{subsection.2.3}% 
-\contentsline {subsection}{\numberline {2.4}Descripci\IeC {\'o}n del agarre y movimiento}{3}{subsection.2.4}% 
-\contentsline {section}{Referencias}{5}{section*.2}% 
+\contentsline {section}{\numberline {3}Información y estructuras de datos utilizadas}{2}{section.3}% 
+\contentsline {section}{\numberline {4}Descripción de los gestos}{2}{section.4}% 
+\contentsline {subsection}{\numberline {4.1}Descripción del \textit {click}}{3}{subsection.4.1}% 
+\contentsline {subsection}{\numberline {4.2}Descripción del \textit {swipe}}{3}{subsection.4.2}% 
+\contentsline {subsection}{\numberline {4.3}Descripción del zoom}{4}{subsection.4.3}% 
+\contentsline {subsection}{\numberline {4.4}Descripción del agarre y movimiento}{5}{subsection.4.4}% 
+\contentsline {section}{Referencias}{6}{section*.2}% 
