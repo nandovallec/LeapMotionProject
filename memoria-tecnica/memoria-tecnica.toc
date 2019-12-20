@@ -2,9 +2,11 @@
 \contentsline {section}{\numberline {1}Introducción}{2}{section.1}% 
 \contentsline {section}{\numberline {2}Interfaz por gestos}{2}{section.2}% 
 \contentsline {section}{\numberline {3}Información y estructuras de datos utilizadas}{2}{section.3}% 
-\contentsline {section}{\numberline {4}Descripción de los gestos}{2}{section.4}% 
-\contentsline {subsection}{\numberline {4.1}Descripción del \textit {click}}{3}{subsection.4.1}% 
-\contentsline {subsection}{\numberline {4.2}Descripción del \textit {swipe}}{3}{subsection.4.2}% 
-\contentsline {subsection}{\numberline {4.3}Descripción del zoom}{4}{subsection.4.3}% 
-\contentsline {subsection}{\numberline {4.4}Descripción del agarre y movimiento}{5}{subsection.4.4}% 
-\contentsline {section}{Referencias}{6}{section*.2}% 
+\contentsline {subsection}{\numberline {3.1}Clase Leap}{2}{subsection.3.1}% 
+\contentsline {subsection}{\numberline {3.2}Interfaz Gráfica}{4}{subsection.3.2}% 
+\contentsline {section}{\numberline {4}Descripción de los gestos}{5}{section.4}% 
+\contentsline {subsection}{\numberline {4.1}Descripción del \textit {click}}{5}{subsection.4.1}% 
+\contentsline {subsection}{\numberline {4.2}Descripción del \textit {swipe}}{6}{subsection.4.2}% 
+\contentsline {subsection}{\numberline {4.3}Descripción del zoom}{6}{subsection.4.3}% 
+\contentsline {subsection}{\numberline {4.4}Descripción del agarre y movimiento}{7}{subsection.4.4}% 
+\contentsline {section}{Referencias}{9}{section*.2}% 
