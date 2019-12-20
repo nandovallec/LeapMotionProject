@@ -127,7 +127,7 @@ un dispositivo \textit{Leap Motion} y un micrófono integrados en las gafas, y u
 manejar el sistema gracias a los múltiples sensores que incorpora como para controlar la aplicación.
 
 En esta segunda versión del proyecto vamos a encargarnos de la interfaz por gestos, es decir, dejaremos a un lado los sensores
-y el controlador por voz. Vamos a encargarnos de la realidad aumentada y los gestos para manejar el sistema.
+y el controlador por voz. Vamos a encargarnos de la realidad aumentada y los gestos para manejar el sistema.https://github.com/nandovallec/LeapMotionProject.git
 
 \section{Interfaz por gestos}
 Como no disponemos de unas gafas con un Leap Motion incorporado, vamos a realizar nuestra simulación en un programa de \texttt{Python} aparte. En
@@ -170,7 +170,7 @@ Hemos realizado esta modificación al Eje-x y Eje-z. A pesar de que contradecimo
 A diferencia de nuevas versiones de \textit{LeapMotion}, los kit de desarrollo en \texttt{Python} no tienen una interfaz gráfica. Esto nos dejaba dos opciones posibles:
 
 \begin{itemize}[label=\textbullet]
-	\item Mostrar resultados por la terminal a través del método\texttt{on\_frame}.
+	\item Mostrar resultados por la terminal a través del método \texttt{on\_frame}.
 	\item Crear nuestra propia interfaz gráfica para mostrar los resultados.
 \end{itemize}
 
@@ -182,7 +182,7 @@ Para este objetivo hacemos uso de:
 
 \begin{itemize}[label=\textbullet]
 	\item Variables globales: la declaración de variables globales, en contraste con variables locales o copia de variables en métodos, permite incrementar la agilidad del programa al acceder a ellas.
-	\item Métodos de actualización de la ventana independiente de la frecuencia del dispositivo: los límites de las máquinas se hacían muy presentes en este punto. La frecuencia del dispositivo es muy alta (y variable) y la capacidad de actualización de la ventana en comparación, era demasiado lenta. Si tuviésemos los recursos suficientes, sería posible un actualización completamente a tiempo real solo dependiendo de los frames, sin embargo nuestra versión crea una ilusión bastante cerca al tiempo real (cada 50 ms).
+	\item Métodos de actualización de la ventana independiente de la frecuencia del dispositivo: los límites de las máquinas se hacían muy presentes en este punto. La frecuencia del dispositivo es muy alta (y variable) y la capacidad de actualización de la ventana en comparación, era demasiado lenta. Si tuviésemos los recursos suficientes, sería posible un actualización completamente a tiempo real solo dependiendo de los frames, sin embargo nuestra versión crea una ilusión bastante cerca al tiempo real (cada 50 ms). Esto se traduce a la actualización de valores en el método \texttt{on\_frame}, y el posterior uso de estos en nuestro método recursivo.
 \end{itemize}
 
 \section{Descripción de los gestos}
@@ -314,9 +314,8 @@ manos están extendidos y el resto cerrados. Después, se comprueba si en cada
 caso el ángulo que forman es mayor que 40º, en caso de que la condición anterior
 se haya satisfecho.
 
-Además de hacer zoom, también está implementada una función que, si llegamos a un umbral de zoom en algunas zonas determinadas (por ejemplo,
-a la fuente de la funete de los leones, o una habitación del Palacio de Carlos V), mostraremos información más detallada sobre ésta. La
-implementación es la siguiente?? o ya la hemos puesto antes???
+Además de hacer zoom, también está implementada una función en la que, si llegamos a un umbral de zoom en algunas zonas determinadas (por ejemplo,
+a la fuente de la funete de los leones, o una habitación del Palacio de Carlos V), mostraremos información más detallada sobre ésta.Este tipo de funcionalidades han sido implementadas en la función de actualización de ventana de nuestra interfaz gráfica.
 
 
 \subsection{Descripción del agarre y movimiento}
@@ -340,6 +339,24 @@ que se hayan impuesto.
 \newpage
 
 \begin{thebibliography}{5}
+\bibitem{bib:sdk py}
+Manual SDK en Python
+\\\url{https://developer-archive.leapmotion.com/documentation/python/index.html}
+
+\bibitem{bib:sdk csharp}
+\textit
+Manual SDK en C\# (consejos sobre el mapeo del sistema de coordenadas)
+\\\url{https://developer-archive.leapmotion.com/documentation/csharp/index.html}
+
+\bibitem{bib:forum}
+\textit
+Foro de desarrollo en LeapMotion
+\\\url{https://forums.leapmotion.com/}
+
+\bibitem{bib:playlist}
+\textit
+Videotutoriales Leap Motion Python
+\\\url{https://www.youtube.com/playlist?list=PLgTGpidiW0iTELuljcIdTkA5SjHa5tudP}
 \end{thebibliography}
 
 \end{document}
