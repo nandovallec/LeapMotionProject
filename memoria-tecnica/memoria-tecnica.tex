@@ -127,7 +127,7 @@ un dispositivo \textit{Leap Motion} y un micrófono integrados en las gafas, y u
 manejar el sistema gracias a los múltiples sensores que incorpora como para controlar la aplicación.
 
 En esta segunda versión del proyecto vamos a encargarnos de la interfaz por gestos, es decir, dejaremos a un lado los sensores
-y el controlador por voz. Vamos a encargarnos de la realidad aumentada y los gestos para manejar el sistema.https://github.com/nandovallec/LeapMotionProject.git
+y el controlador por voz. Vamos a encargarnos de la realidad aumentada y los gestos para manejar el sistema.
 
 \section{Interfaz por gestos}
 Como no disponemos de unas gafas con un Leap Motion incorporado, vamos a realizar nuestra simulación en un programa de \texttt{Python} aparte. En
@@ -138,23 +138,29 @@ implementado cada uno de ellos.
 
 \section{Información y estructuras de datos utilizadas}
 
-En esta sección se describirán las especificaciones de nuestra clase principal. Así como diferentes estructuras utilizadas en nuestro código para hacer posible una pequeña interfaz gráfica. Esta permitirá al usuario ver de una forma visual los resultados de nuestro proyecto.
+En esta sección se describirán las especificaciones de nuestra clase principal. Así como diferentes estructuras utilizadas en nuestro código
+para hacer posible una pequeña interfaz gráfica. Esta permitirá al usuario ver de una forma visual los resultados de nuestro proyecto.
 
 \subsection{Clase Leap}
 
-Nuestra clase \texttt{LeapMotionListener}, se trata de nuestra única clase con los métodos necesarios para poder controlar la información recibida a través del dispositivo.
+Nuestra clase \texttt{LeapMotionListener}, se trata de nuestra única clase con los métodos necesarios para poder controlar la información recibida
+a través del dispositivo.
 
 Esta clase consta de cinco métodos los cuales se explican por sí mismos. Sin embargo, se podrían destacar dos métodos:
 
 \begin{itemize}[label=\textbullet]
 	\item \texttt{on\_connect}: este método es llamado cuando el dispositivo ha sido conectado.
-	La relevancia de este método se encuentra en que permite el reconocimiento de los diferentes gestos implementados en la clase. A pesar de que solo utilizaremos uno de estos gestos en nuestro proyecto, hemos encontrado que el habilitarlos todos produce una reducción de la malinterpretación de estos.
+	La relevancia de este método se encuentra en que permite el reconocimiento de los diferentes gestos implementados en la clase. A pesar de que solo
+	utilizaremos uno de estos gestos en nuestro proyecto, hemos encontrado que el habilitarlos todos produce una reducción de la malinterpretación de estos.
 	\item \texttt{on\_frame}: Este método será llamado por cada frame que recibamos desde el dispositivo.
-	Se podría considerar como nuestro método principal. Ya que el número de frames por segundo fluctúa dependiendo de la capacidad de la máquina, decidimos, por el bien de la eficiencia, intentar reducir en número de llamadas a funciones al mínimo.
+	Se podría considerar como nuestro método principal. Ya que el número de frames por segundo fluctúa dependiendo de la capacidad de la máquina,
+	decidimos, por el bien de la eficiencia, intentar reducir en número de llamadas a funciones al mínimo.
 \end{itemize}
 
 
-Además hemos hecho uso del objeto \texttt{InteractionBox}. Este objeto representa una región en forma caja en el campo de vista del \texttt{LeapMotion}. Esta región es usada para mapear la posición de las manos en el área. Si bien parece una opción fácil de usar, existe el problema del tamaño de esta región. Se puede apreciar en la siguiente imágen:
+Además hemos hecho uso del objeto \texttt{InteractionBox}. Este objeto representa una región en forma caja en el campo de vista del \texttt{LeapMotion}.
+Esta región es usada para mapear la posición de las manos en el área. Si bien parece una opción fácil de usar, existe el problema del tamaño de esta
+región. Se puede apreciar en la siguiente imágen:
 
 \begin{figure}[H]
 \centering
@@ -162,12 +168,15 @@ Además hemos hecho uso del objeto \texttt{InteractionBox}. Este objeto represen
 \end{figure}
 
 Como se puede apreciar, la región es apenas $15 \times 20 \times 20$ aunque la visión del dispositivo sea bastante mayor. 
-Existe una solución simple para “aumentar” la región de interacción. Esta solución hace uso de la capacidad de modificar las coordenadas antes de normalizarlas con respecto a la caja. Si dividimos las coordenadas previas a la normalización entre dos, resulta en un efecto de ``despliegue'' de la caja original, al doble de su tamaño. 
-Hemos realizado esta modificación al Eje-x y Eje-z. A pesar de que contradecimos el objetivo del ``mapeo perfecto'' de la clase \texttt{Interaction Box}, esta solución ha sido propuesta por desarrolladores profesionales de \textit{LeapMotion}.
+Existe una solución simple para “aumentar” la región de interacción. Esta solución hace uso de la capacidad de modificar las coordenadas antes de normalizarlas
+con respecto a la caja. Si dividimos las coordenadas previas a la normalización entre dos, resulta en un efecto de ``despliegue'' de la caja original, al
+doble de su tamaño. Hemos realizado esta modificación al Eje-x y Eje-z. A pesar de que contradecimos el objetivo del ``mapeo perfecto'' de la clase
+\texttt{Interaction Box}, esta solución ha sido propuesta por desarrolladores profesionales de \textit{LeapMotion}.
 
 \subsection{Interfaz Gráfica}
 
-A diferencia de nuevas versiones de \textit{LeapMotion}, los kit de desarrollo en \texttt{Python} no tienen una interfaz gráfica. Esto nos dejaba dos opciones posibles:
+A diferencia de nuevas versiones de \textit{LeapMotion}, los kit de desarrollo en \texttt{Python} no tienen una interfaz gráfica. Esto nos dejaba dos
+opciones posibles:
 
 \begin{itemize}[label=\textbullet]
 	\item Mostrar resultados por la terminal a través del método \texttt{on\_frame}.
@@ -175,29 +184,31 @@ A diferencia de nuevas versiones de \textit{LeapMotion}, los kit de desarrollo e
 \end{itemize}
 
 Nos decidimos por la segunda opción y gracias a la biblioteca \texttt{tkinter}, desarrollamos una forma de visualización de nuestro proyecto.
-De una forma simplificada, \texttt{tkinter} es una biblioteca que permite creación de ventanas donde mostrar texto y/o imágenes. Haciendo uso de variables globales y funciones recursivas en intervalos, hemos conseguido una forma simple y eficiente de representar cambios a tiempo real.
-Como ha sido mencionado antes, la necesidad por un método lo más óptimo posible que interfiriera lo mínimo con la velocidad de procesamiento de frames del dispositivo era prioridad. 
+De una forma simplificada, \texttt{tkinter} es una biblioteca que permite creación de ventanas donde mostrar texto y/o imágenes. Haciendo uso de variables
+globales y funciones recursivas en intervalos, hemos conseguido una forma simple y eficiente de representar cambios a tiempo real.
+Como ha sido mencionado antes, la necesidad por un método lo más óptimo posible que interfiriera lo mínimo con la velocidad de procesamiento de frames del
+dispositivo era prioridad. 
 
 Para este objetivo hacemos uso de:
 
 \begin{itemize}[label=\textbullet]
-	\item Variables globales: la declaración de variables globales, en contraste con variables locales o copia de variables en métodos, permite incrementar la agilidad del programa al acceder a ellas.
-	\item Métodos de actualización de la ventana independiente de la frecuencia del dispositivo: los límites de las máquinas se hacían muy presentes en este punto. La frecuencia del dispositivo es muy alta (y variable) y la capacidad de actualización de la ventana en comparación, era demasiado lenta. Si tuviésemos los recursos suficientes, sería posible un actualización completamente a tiempo real solo dependiendo de los frames, sin embargo nuestra versión crea una ilusión bastante cerca al tiempo real (cada 50 ms). Esto se traduce a la actualización de valores en el método \texttt{on\_frame}, y el posterior uso de estos en nuestro método recursivo.
+	\item Variables globales: la declaración de variables globales, en contraste con variables locales o copia de variables en métodos, permite incrementar
+	la agilidad del programa al acceder a ellas.
+	\item Métodos de actualización de la ventana independiente de la frecuencia del dispositivo: los límites de las máquinas se hacían muy presentes en este
+	punto. La frecuencia del dispositivo es muy alta (y variable) y la capacidad de actualización de la ventana en comparación, era demasiado lenta. Si tuviésemos
+	los recursos suficientes, sería posible un actualización completamente a tiempo real solo dependiendo de los frames, sin embargo nuestra versión crea una
+	ilusión bastante cerca al tiempo real (cada 50 ms). Esto se traduce a la actualización de valores en el método \texttt{on\_frame}, y el posterior uso de
+	estos en nuestro método recursivo.
 \end{itemize}
 
 \section{Descripción de los gestos}
 
-En esta sección se van a describir todos los gestos que se han implementado. Se va
-a hacer una breve descripción de en qué consiste y se va a mostrar muy por encima
-el código asociado en los casos en los que se haya considerado necesario (cuando
-lo que se quiere mostrar es relevante ya que se trata de algo no trivial).
+En esta sección se van a describir todos los gestos que se han implementado. Se va a hacer una breve descripción de en qué consiste y se va a mostrar muy por
+encima el código asociado en los casos en los que se haya considerado necesario (cuando lo que se quiere mostrar es relevante ya que se trata de algo no trivial).
 
-Antes de continuar, hay que destacar que algunos de los gestos solo están disponibles
-cuando ambas manos están encima del \textit{Leap Motion}. Por ejemplo, el \textit{click},
-el \textit{swipe} y el agarre y movimiento solo pueden ser realizados cuando se detecta
-una única mano. El zoom solo se puede realizar si se han detectado dos manos y se hace
-el gesto correspondiente con los dedos. Para comprobar si se usa una mano o dos, podemos
-hacer los siguiente:
+Antes de continuar, hay que destacar que algunos de los gestos solo están disponibles cuando ambas manos están encima del \textit{Leap Motion}. Por ejemplo,
+el \textit{click}, el \textit{swipe} y el agarre y movimiento solo pueden ser realizados cuando se detecta una única mano. El zoom solo se puede realizar si
+se han detectado dos manos y se hace el gesto correspondiente con los dedos. Para comprobar si se usa una mano o dos, podemos hacer los siguiente:
 
 \begin{lstlisting}
 if(len(frame.hands) == 1):
@@ -207,29 +218,32 @@ f(len(frame.hands) >= 2 ):
 	...
 \end{lstlisting}
 
-En este caso, comprobamos si se han detectado dos o más manos, ya que puede pasar que
-otra persona pase la mano por encima del dispositivo. Sin embargo, nos quedamos siempre
-con las dos primeras manos que hayamos detectado.
+En este caso, comprobamos si se han detectado dos o más manos, ya que puede pasar que otra persona pase la mano por encima del dispositivo. Sin embargo, nos
+quedamos siempre con las dos primeras manos que hayamos detectado.
 
 \subsection{Descripción del \textit{click}}
 
-Este gesto sirve para mostrar información extra sobre el objeto. El gesto consiste en cerrar y abrir el puño en la zona sobre la que
-queremos obtener información. Esta zona se detectaría automáticamente mediante un algoritmo implementado en las gafas, pero como no disponemos
-de dicha tecnología, utilizaremos una imagen fija con una zona resaltada
+Este gesto sirve para mostrar información extra sobre el objeto. El gesto consiste en cerrar y abrir el puño en la zona sobre la que queremos obtener información.
+Esta zona se detectaría automáticamente mediante un algoritmo implementado en las gafas, pero como no disponemos de dicha tecnología, utilizaremos una imagen fija
+con una zona resaltada.
 
-Esto mostrará en la interfaz de nuestras gafas de realidad aumentada una imagen de la zona resaltada, junto con información de esta. La
-información podrá ser modificada mediante otros gestos descritos posteriormente.
+Esto mostrará en la interfaz de nuestras gafas de realidad aumentada una imagen de la zona resaltada, junto con información de esta. La información podrá ser modificada
+mediante otros gestos descritos posteriormente.
 
-Para saber si estamos haciendo o no un \textit{click}, simplemente tenemos que
-comprobar la siguiente condición:
+Para saber si estamos haciendo o no un \textit{click}, simplemente tenemos que comprobar la siguiente condición:
 
 \begin{lstlisting}
 if (closed_hand and hands[0].grab_strength == 1.0):
 	...
+	if !(cursor_x != -100 and cursor_y != -100 and label.place_info() != {}):
+		# If photo is not loaded, we check the position of the cursor and load the photo
+        if (cursor_x >= 1100.0 * .75) and (cursor_y <= 1000.0 * .2):
+            resetting = True
 \end{lstlisting}
 
-Después se va a comprobar si la mano está posicionada en la zona adecuada, en cuyo caso se
-mostrará la imagen que contiene información.
+Después se va a comprobar si la mano está posicionada en la zona adecuada, en cuyo caso se mostrará la imagen que contiene información. La zona se
+debería detectar con técnicas más avanzadas, las cuales no disponemos, asi que nosotros detectaremos la esquina superior derecha de la imagen donde
+se encuentra el palacio de Carlos V.
 
 \subsection{Descripción del \textit{swipe}}
 
@@ -315,7 +329,8 @@ caso el ángulo que forman es mayor que 40º, en caso de que la condición anter
 se haya satisfecho.
 
 Además de hacer zoom, también está implementada una función en la que, si llegamos a un umbral de zoom en algunas zonas determinadas (por ejemplo,
-a la fuente de la funete de los leones, o una habitación del Palacio de Carlos V), mostraremos información más detallada sobre ésta.Este tipo de funcionalidades han sido implementadas en la función de actualización de ventana de nuestra interfaz gráfica.
+a la fuente de la funete de los leones, o una habitación del Palacio de Carlos V), mostraremos información más detallada sobre ésta.Este tipo de
+funcionalidades han sido implementadas en la función de actualización de ventana de nuestra interfaz gráfica.
 
 
 \subsection{Descripción del agarre y movimiento}
@@ -328,12 +343,43 @@ Si estamos arrastrando la información fuera de nuestro campo de visión, hemos 
 el programa no nos permita hacerlo.
 
 Arrastrada la información, también guardaremos las propiedades que conservaba previamente, como por ejemplo, si le habíamos hecho zoom, o la
-habíamos arrastrado en otro momento.
+habíamos arrastrado en otro momento. Lo hemos implementado de la siguiente forma:
+\begin{lstlisting}
+	# If the hand is close
+    if (closed_hand and hands[0].grab_strength == 1.0):
 
-Para comprobar que estamos haciendo un agarre con la mano, tenemos que
-comprobar la misma condición que con el \textit{click}, aunque lo que se va
-a ejecutar va a ser diferente, ya que se va a actualizar la posición de la
-imagen en función del movimiento realizado, respetando siempre los bordes
+        # Check if we were positioning already or we are starting
+        if(not positioning):
+            # Check if the cursor is positioned over the photo
+            inside_range_x = image_pos_X - new_width/2 +25 <= cursor_x <= image_pos_X + new_width/2 -25
+            inside_range_y = image_pos_Y - new_height/2 +25 <= cursor_y <= image_pos_Y + new_height/2 -25
+
+        # Check is not an abnormal case and that the photo is loaded
+        if(cursor_x != -100 and cursor_y != -100
+        	and label.place_info() != {}):
+
+        	# Check if we can position or were already
+            if(positioning or (inside_range_x and inside_range_y)):
+
+            	# If we are starting to position
+                if hand_origin_X == -100 and hand_origin_Y == -100:
+                    hand_origin_X = cursor_x
+                    hand_origin_Y = cursor_y
+                    positioning = True
+
+                # If we were positioning already
+                else:
+                    image_pos_X = image_pos_X + ((cursor_x - hand_origin_X) if cursor_x - hand_origin_X < 15 else 15)
+                    image_pos_Y = image_pos_Y + ((cursor_y - hand_origin_Y) if cursor_y - hand_origin_Y < 15 else 15)
+                    hand_origin_X = cursor_x
+                    hand_origin_Y = cursor_y
+
+\end{lstlisting}
+
+
+
+Para comprobar que estamos haciendo un agarre con la mano, tenemos que comprobar la misma condición que con el \textit{click}, aunque lo que se va
+a ejecutar va a ser diferente, ya que se va a actualizar la posición de la imagen en función del movimiento realizado, respetando siempre los bordes
 que se hayan impuesto.
 
 \newpage
